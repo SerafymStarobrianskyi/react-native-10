@@ -13,28 +13,35 @@ import { wordsLearningActions } from "../../store/wordsLearningSlice";
 import { getWordInfo } from "../../services/wordsHandler";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { playSound } from "../../services/soundHandler";
+import WordImagePicker from "../../components/WordImagePicker";
 
 function AddWord({ navigation }) {
   const [text, setText] = useState();
   const [wordData, setWordData] = useState();
+  const [image, setImage] = useState();
   const colors = useSelector((state) => state.theme.colors);
   const styles = useMemo(() => getStyles(colors), [colors]);
   const dispatch = useDispatch();
 
   function onChangeText(text) {
     setWordData(undefined);
+    setImage(undefined);
     setText(text);
   }
 
   useEffect(() => {
+    let active = true;
     const delayDebounceFn = setTimeout(async () => {
       if (text) {
         const wordDataReceived = await getWordInfo(text);
-        setWordData(wordDataReceived);
+        if (active) setWordData(wordDataReceived);
       }
     }, 1000);
 
-    return () => clearTimeout(delayDebounceFn);
+    return () => {
+      active = false;
+      clearTimeout(delayDebounceFn);
+    };
   }, [text]);
 
   useEffect(() => {
@@ -44,7 +51,11 @@ function AddWord({ navigation }) {
   }, [navigation, wordData]);
 
   function onAdd() {
-    dispatch(wordsLearningActions.addWord(wordData));
+    if (!wordData?.word) return;
+    dispatch(wordsLearningActions.addWord({
+      ...wordData,
+      ...(image ? { image } : {}),
+    }));
     navigation.navigate("AllWords");
   }
 
@@ -60,6 +71,12 @@ function AddWord({ navigation }) {
           placeholderTextColor={colors.grey600}
         />
       </View>
+      <WordImagePicker
+        image={image}
+        onChange={setImage}
+        enabled={!!wordData?.word}
+        colors={colors}
+      />
       {wordData && (
         <View style={styles.receivedInfoContainer}>
           <View style={{ flexDirection: "row", alignItems: "baseline" }}>

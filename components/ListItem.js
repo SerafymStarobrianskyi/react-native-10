@@ -22,6 +22,10 @@ function Item({ item }) {
 
   return (
     <View style={styles.item}>
+      <Image
+        style={styles.image}
+        source={item.image ? { uri: item.image } : require("../assets/no-image.png")}
+      />
       <Pressable disabled={!item.audio} onPress={() => playSound(item.audio)}>
         <View style={styles.iconContainer}>
           <Ionicons

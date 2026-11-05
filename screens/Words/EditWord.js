@@ -10,6 +10,7 @@ import { playSound } from "../../services/soundHandler";
 import { useState, useMemo } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { wordsLearningActions } from "../../store/wordsLearningSlice";
+import WordImagePicker from "../../components/WordImagePicker";
 
 function EditWord({ route, navigation }) {
   const [wordData, setWordData] = useState(() => route.params.wordData);
@@ -30,6 +31,11 @@ function EditWord({ route, navigation }) {
 
   return (
     <>
+      <WordImagePicker
+        image={wordData.image}
+        onChange={(uri) => onChangeWordData(uri, "image")}
+        colors={colors}
+      />
       <View style={styles.receivedInfoContainer}>
         <View style={{ flexDirection: "row", alignItems: "baseline" }}>
           <Text style={styles.word}>{wordData.word}</Text>
